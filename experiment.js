@@ -47,15 +47,18 @@
   if(galleryVisible!==inGallery){inGallery=galleryVisible;root.classList.toggle('in-station-gallery',galleryVisible);if(galleryVisible&&typeof dismissFlashImmediately==='function')dismissFlashImmediately()}
   const p=position((scrollY-m.top)/m.span),active=Math.round(p);
   stations.forEach((station,i)=>{
-   const d=i-p,visibility=1-smooth(Math.abs(d)*2.7);
-   station.querySelector('.station-art').style.opacity=reduced?.8:clamp(1-Math.max(0,Math.abs(d)-.45)/.55);
-   station.style.transform=reduced?'none':`translate3d(${-d*(mobile?innerWidth*1.12:innerWidth*.74)}px,0,0)`;
+   const d=i-p,visibility=1-smooth(Math.abs(d)*1.9);
+   const sceneAlpha=1-smooth(Math.abs(d));
+   const sceneScale=d>=0?1-.24*smooth(d):1+.18*smooth(-d);
+   station.querySelector('.station-art').style.opacity=reduced?.8:1;
+   station.style.opacity=reduced?'1':String(sceneAlpha);
+   station.style.transform=reduced?'none':`scale(${sceneScale})`;
    const copy=station.querySelector('.station-copy');copy.style.opacity=reduced?1:visibility;
-   if(!reduced)copy.style.translate=`${d*-45}px 0`;
+   copy.style.translate='none';
    station.inert=!reduced&&(i!==active||visibility<.2);
    station.setAttribute('aria-hidden',String(station.inert));
    washes[i].style.opacity=clamp(1-Math.abs(d));
-   washes[i].style.transform=`translate3d(${d*-60}px,0,0) scale(1.15)`;
+   washes[i].style.transform='scale(1.1)';
    stops[i].style.setProperty('--fill',clamp(1-Math.abs(d))*100+'%');
    stops[i].setAttribute('aria-current',String(i===active));
   });
