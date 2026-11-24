@@ -132,3 +132,9 @@ html {scroll-behavior:smooth}
 /* First station shares the hero camera, not a second vertical entrance. */
 .station-journey:not(.is-static){background:transparent}
 @media(prefers-reduced-motion:reduce){.station-journey{background:#0d0b09}}
+
+/* Fixed camera handoff. Background fills the screen, only the world approaches. */
+.station-stage.is-approaching{position:fixed;inset:0;width:100%;height:100svh;transform:none!important}
+.station-stage.is-approaching .station-world{transform:scale(var(--station-camera-scale,.55));transform-origin:50% 50%;will-change:transform}
+.station-stage.is-approaching .station-wash{opacity:0}
+.station-stage.is-approaching .station-heading,.station-stage.is-approaching .station-controls{opacity:0;pointer-events:none}

@@ -24,6 +24,7 @@
   ticking=false;
   if(!home.classList.contains('active'))return;
   const reduced=reduce.matches||staticMode, mobile=innerWidth<1100;
+  const m=metrics();
   const hr=hero.getBoundingClientRect(),hp=clamp(-hr.top/Math.max(1,hero.offsetHeight-innerHeight));
   hero.style.setProperty('--question-depth',reduce.matches?'0px':hp*hp*(mobile?560:650)+'px');
   hero.style.setProperty('--question-title-opacity',reduce.matches?1:1-smooth((hp-.35)/.6));
@@ -33,14 +34,15 @@
   hero.style.setProperty('--question-blur',reduced?'0px':Math.max(0,hp-.55)*7+'px');
   journey.style.setProperty('--gallery-entry',reduce.matches||staticMode?1:smooth((hp-.5)/.5));
   journey.inert=!reduced&&hp<.85;
-  const m=metrics();
-  // Hold the first station on the same camera plane during the handoff.
-  // Counter its document Y offset, then bring it forward from behind the title.
-  const entry=reduced?1:smooth((hp-.32)/.68);
+  // A genuine fixed screen plane before the gallery's normal sticky interval.
+  // No inverse Y transform is raced against native compositor scrolling.
+  const entry=reduced?1:smooth((hp-.18)/.82);
   const stage=journey.querySelector('.station-stage');
-  stage.style.transform=reduced?'none':`translateY(${-Math.max(0,m.top-scrollY)}px) perspective(1000px) translateZ(${-560*(1-entry)}px)`;
-  stage.style.transformOrigin='50% 50%';
+  const approach=!reduced&&scrollY<m.top;
+  stage.classList.toggle('is-approaching',approach);
+  stage.style.transform='none';
   journey.style.setProperty('--gallery-entry',entry);
+  journey.style.setProperty('--station-camera-scale',String(.55+.45*entry));
   const galleryVisible=scrollY>=m.top-innerHeight*.2&&scrollY<m.top+journey.offsetHeight-innerHeight*.2;
   if(galleryVisible!==inGallery){inGallery=galleryVisible;root.classList.toggle('in-station-gallery',galleryVisible);if(galleryVisible&&typeof dismissFlashImmediately==='function')dismissFlashImmediately()}
   const p=position((scrollY-m.top)/m.span),active=Math.round(p);
