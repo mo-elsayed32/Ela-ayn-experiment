@@ -66,7 +66,7 @@ html {scroll-behavior:smooth}
  .station-scroll-note{display:none}
  .station-wash:after{background:linear-gradient(0deg,#0d0b09 4%,rgba(13,11,9,.6) 35%,transparent 70%,rgba(13,11,9,.6))}
 }
-@media(max-height:600px) and (min-width:700px){.station-heading{top:75px}.station-copy{top:50%;bottom:auto;transform:translateY(-50%);right:8vw;width:36vw}.station-copy h2{font-size:32px}.station-art{width:60vw;height:120svh;left:0;top:-10svh}.station-copy p{font-size:11px}.station-num{margin-bottom:8px}.station-read{margin-top:6px}.station-controls{bottom:10px}.journey-invite{display:none}}
+@media(max-height:600px) and (min-width:700px){.station-heading{top:105px}.station-copy{top:50%;bottom:auto;transform:translateY(-50%);right:8vw;width:36vw}.station-copy h2{font-size:32px}.station-art{width:60vw;height:120svh;left:0;top:-10svh}.station-copy p{font-size:11px}.station-num{margin-bottom:8px}.station-read{margin-top:6px}.station-controls{bottom:10px}.journey-invite{display:none}}
 @media(prefers-reduced-motion:reduce){
  html{scroll-behavior:auto}
  .question-journey{height:auto}.question-journey .hero{position:relative}
