@@ -1510,10 +1510,25 @@ function stopSnapCycle(){
 }
 function startSnapCycle(){
   stopSnapCycle();snapCycleStarted=true;_snapIdx=0;
+  snapCycleSuspended=!snapHeroVisible();
   _runSnapStep(snapCycleToken);
 }
+function snapHeroVisible(){
+  const hero=document.getElementById('question-journey');
+  if(!hero||!document.getElementById('page-home').classList.contains('active'))return false;
+  const r=hero.getBoundingClientRect();
+  return r.top>-(hero.offsetHeight-innerHeight)*.18;
+}
+function syncSnapVisibility(){
+  if(!snapCycleStarted)return;
+  if(!snapHeroVisible()){if(!snapCycleSuspended){snapCycleSuspended=true;stopSnapCycle();}}
+  else if(snapCycleSuspended){snapCycleSuspended=false;startSnapCycle();}
+}
+var snapCycleSuspended=false;
+addEventListener('scroll',syncSnapVisibility,{passive:true});
+addEventListener('resize',syncSnapVisibility,{passive:true});
 function _runSnapStep(token){
-  const valid=()=>token===snapCycleToken&&document.getElementById('page-home').classList.contains('active');
+  const valid=()=>token===snapCycleToken&&snapHeroVisible();
   const el=document.getElementById('snap-sub-text');if(!el||!valid())return;
   el.textContent=_snapTexts[_snapIdx++%_snapTexts.length];
   el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(9px)';

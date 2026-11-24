@@ -274,3 +274,23 @@ html {scroll-behavior:smooth}
  .station[data-station="0"] .station-art{top:110px;left:13vw;height:calc(100svh - 110px);width:calc((100svh - 110px) * .6666667);max-width:49vw}
  .station[data-station="0"] .station-art img{object-fit:contain;object-position:center}
 }
+
+/* Rebalance the mobile portrait composition only within exposed browser space.
+   The large painted room keeps its stable dimensions throughout the handoff. */
+@media(prefers-reduced-motion:no-preference) and (max-width:699px) and (orientation:portrait){
+ .station-journey:not(.is-static) .station-world{top:calc(min((100lvh - 100svh)/2,max(0px,15svh - var(--station-control-bottom,24px) - 60px)) + var(--station-visible-extra,0px)*.45)}
+ .station-journey:not(.is-static) .station-controls{translate:0 calc(var(--station-visible-extra,0px)*.8)}
+}
+/* Fit the original first painting, feathering only its outer boundary. A
+   single mask avoids inherited multi-mask compositing around the face. */
+@media(max-width:699px) and (orientation:portrait){
+ .station[data-station="0"] .station-art img{object-fit:contain;object-position:center;mask-image:radial-gradient(ellipse closest-side,#000 78%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 78%,transparent 100%);mask-composite:add;-webkit-mask-composite:source-over}
+}
+@media(max-width:699px) and (orientation:portrait){
+ .station[data-station="0"] .station-art{left:calc(50% - 25svh);width:50svh;top:2svh;height:75svh}
+}
+/* Mobile only: retain the left-hand wall drawing beside the child's hand. */
+@media(max-width:699px) and (orientation:portrait){
+ .station[data-station="2"] .station-art{left:0;width:100vw}
+ .station[data-station="2"] .station-art img{object-position:0% 45%}
+}

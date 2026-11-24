@@ -25,6 +25,13 @@
   if(!home.classList.contains('active'))return;
   const reduced=reduce.matches||staticMode, mobile=innerWidth<1100;
   const m=metrics();
+  // Keep the painted room stable. Only rebalance its contents inside the
+  // currently visible viewport, never beneath expanded browser chrome.
+  const world=journey.querySelector('.station-world');
+  const safeHeight=world.offsetHeight;
+  const visibleHeight=window.visualViewport?visualViewport.height:innerHeight;
+  const extra=reduced?0:Math.max(0,Math.min(visibleHeight-safeHeight,stageHeight()-safeHeight));
+  journey.style.setProperty('--station-visible-extra',extra+'px');
   const hr=hero.getBoundingClientRect(),hp=clamp(-hr.top/Math.max(1,m.top-(hr.top+scrollY)));
   hero.style.setProperty('--question-depth',reduce.matches?'0px':hp*hp*(mobile?560:650)+'px');
   hero.style.setProperty('--question-title-opacity',reduce.matches?1:1-smooth((hp-.35)/.6));
@@ -63,6 +70,8 @@
    stops[i].setAttribute('aria-current',String(i===active));
   });
  }
+ function stageHeight(){return journey.querySelector('.station-stage').offsetHeight}
+ if(window.visualViewport)visualViewport.addEventListener('resize',request,{passive:true});
  function request(){if(!ticking){ticking=true;requestAnimationFrame(render)}}
  addEventListener('scroll',request,{passive:true});addEventListener('resize',request,{passive:true});reduce.addEventListener('change',request);
  new MutationObserver(request).observe(home,{attributes:true,attributeFilter:['class']});
