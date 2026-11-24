@@ -151,3 +151,6 @@ html {scroll-behavior:smooth}
  .station-journey:not(.is-static) .station-stage{height:100dvh}
  .station-stage.is-approaching{height:100dvh}
 }
+
+/* The hero surface also fills the retracted-toolbar viewport. */
+.question-journey .hero{height:100dvh;min-height:100dvh}

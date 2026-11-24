@@ -25,7 +25,7 @@
   if(!home.classList.contains('active'))return;
   const reduced=reduce.matches||staticMode, mobile=innerWidth<1100;
   const m=metrics();
-  const hr=hero.getBoundingClientRect(),hp=clamp(-hr.top/Math.max(1,hero.offsetHeight-innerHeight));
+  const hr=hero.getBoundingClientRect(),hp=clamp(-hr.top/Math.max(1,m.top-(hr.top+scrollY)));
   hero.style.setProperty('--question-depth',reduce.matches?'0px':hp*hp*(mobile?560:650)+'px');
   hero.style.setProperty('--question-title-opacity',reduce.matches?1:1-smooth((hp-.35)/.6));
   hero.style.setProperty('--question-detail-opacity',reduce.matches?1:1-smooth(hp/.42));
