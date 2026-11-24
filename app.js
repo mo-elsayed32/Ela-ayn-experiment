@@ -264,7 +264,7 @@ function setNav(page) {
   if (page === 'home') {
     nav.classList.add('was-on-poem');
     nav.classList.remove('on-poem');
-    nl.innerHTML = `<button type="button" class="n-logo" onclick="goTo('home')">إلى أين؟</button>`;
+    nl.innerHTML = `<button type="button" class="n-logo" onclick="goTo('home')"><img class="n-logo-art n-logo-dark" src="assets/navbar-logo-dark.png" alt="" width="38" height="38"><img class="n-logo-art n-logo-light" src="assets/navbar-logo-light.png" alt="" width="38" height="38">إلى أين؟</button>`;
     nc.textContent = '';
     nr.innerHTML = `<div style="display:flex;align-items:center;gap:1.5rem;"><ul class="n-links"><li><a href="#texts" onclick="event.preventDefault();goToSection('home','texts')">النصوص</a></li><li><a href="#about" onclick="event.preventDefault();goToSection('home','about')">عن المشروع</a></li><li><a href="#contact" onclick="event.preventDefault();goToSection('home','contact')">تواصل</a></li></ul>${toggleBtnHTML}</div>`;
   } else {
