@@ -118,12 +118,23 @@ function goTo(page, options = {}) {
   }
 
   const current = document.querySelector('.page.active');
+  // Returning during the outgoing transition must cancel its pending activation.
+  const canceledNavigation = navigationTimer !== null;
+  if (canceledNavigation) {
+    clearTimeout(navigationTimer);
+    navigationTimer = null;
+  }
   if (current && current.id === 'page-' + page) {
+    if (canceledNavigation) {
+      current._enterToken = null;
+      current.style.transition = '';
+      current.style.transform = '';
+      current.style.opacity = '1';
+    }
     setNav(page);
     if (Number.isFinite(restoreScrollY)) window.scrollTo({ top: restoreScrollY, behavior: 'instant' });
     return;
   }
-  if (navigationTimer) clearTimeout(navigationTimer);
   cleanPainting();
 
   const activate = () => {
