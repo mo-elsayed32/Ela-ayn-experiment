@@ -34,6 +34,13 @@
   journey.style.setProperty('--gallery-entry',reduce.matches||staticMode?1:smooth((hp-.5)/.5));
   journey.inert=!reduced&&hp<.85;
   const m=metrics();
+  // Hold the first station on the same camera plane during the handoff.
+  // Counter its document Y offset, then bring it forward from behind the title.
+  const entry=reduced?1:smooth((hp-.32)/.68);
+  const stage=journey.querySelector('.station-stage');
+  stage.style.transform=reduced?'none':`translateY(${-Math.max(0,m.top-scrollY)}px) perspective(1000px) translateZ(${-560*(1-entry)}px)`;
+  stage.style.transformOrigin='50% 50%';
+  journey.style.setProperty('--gallery-entry',entry);
   const galleryVisible=scrollY>=m.top-innerHeight*.2&&scrollY<m.top+journey.offsetHeight-innerHeight*.2;
   if(galleryVisible!==inGallery){inGallery=galleryVisible;root.classList.toggle('in-station-gallery',galleryVisible);if(galleryVisible&&typeof dismissFlashImmediately==='function')dismissFlashImmediately()}
   const p=position((scrollY-m.top)/m.span),active=Math.round(p);
