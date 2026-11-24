@@ -70,19 +70,21 @@ function dustFloatingLetter(el) {
   const pixels=sx.getImageData(0,0,source.width,source.height).data, dust=[];
   for(let y=0;y<source.height;y+=3)for(let x=0;x<source.width;x+=3){
     const a=pixels[(y*source.width+x)*4+3];if(a<25)continue;
-    dust.push({x:x/scale,y:y/scale,a:a/255,dx:8+Math.random()*36,dy:-12-Math.random()*48,delay:(x/source.width)*.35+Math.random()*.12});
+    dust.push({x:x/scale,y:y/scale,a:a/255,dx:8+Math.random()*36,dy:-12-Math.random()*48,delay:(x/source.width)*.14+Math.random()*.04});
   }
   const canvas=document.createElement('canvas');canvas.className='floating-dust';
   canvas.width=Math.ceil((r.width+100)*scale);canvas.height=Math.ceil((r.height+130)*scale);
   canvas.style.cssText=`position:absolute;left:${r.left-box.left-40}px;top:${r.top-box.top-90}px;width:${r.width+100}px;height:${r.height+130}px;pointer-events:none;`;
   lbox.appendChild(canvas);const ctx=canvas.getContext('2d');ctx.scale(scale,scale);
-  const opacity=+cs.opacity,start=performance.now();el.remove();
+  const opacity=+cs.opacity,start=performance.now();
+  const duration=parseFloat(cs.animationDuration)||18,velocityY=-1.15*innerHeight/duration;
+  el.remove();
   function frame(now){
-    const t=(now-start)/1000;ctx.clearRect(0,0,canvas.width/scale,canvas.height/scale);ctx.fillStyle=cs.color;
-    for(const q of dust){const v=Math.max(0,Math.min(1,(t-q.delay)/.85));ctx.globalAlpha=q.a*opacity*(1-v);ctx.fillRect(q.x+40+q.dx*v,q.y+90+q.dy*v,1.5*(1-v*.6),1.5*(1-v*.6));}
-    if(t<1.35 && canvas.isConnected)requestAnimationFrame(frame);else canvas.remove();
+    const t=(now-start)/1000;canvas.style.transform=`translateY(${velocityY*t}px)`;ctx.clearRect(0,0,canvas.width/scale,canvas.height/scale);ctx.fillStyle=cs.color;
+    for(const q of dust){const v=Math.max(0,Math.min(1,(t-q.delay)/.8));ctx.globalAlpha=q.a*opacity*(1-v);ctx.fillRect(q.x+40+q.dx*v,q.y+90+q.dy*v,1.5*(1-v*.6),1.5*(1-v*.6));}
+    if(t<1.02 && canvas.isConnected)requestAnimationFrame(frame);else canvas.remove();
   }
-  requestAnimationFrame(frame);
+  frame(start);
 }
 function spawnLetter() {
   if (!lbox || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -133,6 +135,7 @@ function pageFromHash() {
 function goTo(page, options = {}) {
   if (page !== 'home' && typeof finishHeroEntrance === 'function') finishHeroEntrance();
   if (!VALID_PAGES.has(page)) return;
+  if(page!=='home')stopSnapCycle();
   setFlashPageActive(page === 'home');
   const { updateHistory = true, immediate = false, restoreScrollY = null } = options;
   if (updateHistory) {
@@ -159,6 +162,7 @@ function goTo(page, options = {}) {
       current.style.opacity = '1';
     }
     setNav(page);
+    if(page==='home' && snapCycleStarted)startSnapCycle();
     if (Number.isFinite(restoreScrollY)) window.scrollTo({ top: restoreScrollY, behavior: 'instant' });
     return;
   }
@@ -212,6 +216,7 @@ function goTo(page, options = {}) {
       window.scrollTo({ top: destinationY, behavior: 'instant' });
     }));
     setNav(page);
+    if(page==='home' && snapCycleStarted)startSnapCycle();
     if (progBar) progBar.style.width = '0';
     setTimeout(() => {
       initReveals();
@@ -1497,43 +1502,34 @@ function tgDissolveText(el, onDone) {
 /* ─────────────────────────────────────────
    SUBTITLE CYCLING
 ───────────────────────────────────────── */
-var _snapIdx    = 0;
-
-function startSnapCycle() {
-  _snapIdx = 0;
-  _runSnapStep();
+var _snapIdx=0,snapCycleToken=0,snapCycleTimer=null,snapCycleStarted=false;
+function stopSnapCycle(){
+  snapCycleToken++;clearTimeout(snapCycleTimer);snapCycleTimer=null;
+  document.querySelectorAll('.word-snap-dust').forEach(c=>c.remove());
+  const el=document.getElementById('snap-sub-text');if(el)el.style.opacity='0';
 }
-
-function _runSnapStep() {
-  var subEl = document.getElementById('snap-sub-text');
-  if (!subEl) return;
-
-  var text = _snapTexts[_snapIdx % _snapTexts.length];
-  _snapIdx++;
-
-  /* slide-in from below */
-  subEl.textContent = text;
-  subEl.style.transition = 'none';
-  subEl.style.opacity    = '0';
-  subEl.style.transform  = 'translateY(9px)';
-
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      subEl.style.transition = 'opacity .4s cubic-bezier(.16,1,.3,1), transform .48s cubic-bezier(.16,1,.3,1)';
-      subEl.style.opacity    = '1';
-      subEl.style.transform  = 'translateY(0)';
-
-      /* hold, then character-dissolve exit */
-      setTimeout(function() {
-        tgDissolveText(subEl, function() {
-          /* reset for next word */
-          subEl.style.opacity   = '0';
-          subEl.style.transform = 'translateY(9px)';
-          setTimeout(_runSnapStep, 120);
-        });
-      }, 3800);
-    });
-  });
+function startSnapCycle(){
+  stopSnapCycle();snapCycleStarted=true;_snapIdx=0;
+  _runSnapStep(snapCycleToken);
+}
+function _runSnapStep(token){
+  const valid=()=>token===snapCycleToken&&document.getElementById('page-home').classList.contains('active');
+  const el=document.getElementById('snap-sub-text');if(!el||!valid())return;
+  el.textContent=_snapTexts[_snapIdx++%_snapTexts.length];
+  el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(9px)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(!valid())return;
+    el.style.transition='opacity .4s cubic-bezier(.16,1,.3,1), transform .48s cubic-bezier(.16,1,.3,1)';
+    el.style.opacity='1';el.style.transform='translateY(0)';
+    snapCycleTimer=setTimeout(()=>{
+      if(!valid())return;
+      tgDissolveText(el,()=>{
+        if(!valid())return;
+        el.style.opacity='0';el.style.transform='translateY(9px)';
+        snapCycleTimer=setTimeout(()=>_runSnapStep(token),120);
+      });
+    },3800);
+  }));
 }
 
 /* button entrance — single big burst centered on button */

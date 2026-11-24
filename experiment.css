@@ -267,3 +267,10 @@ html {scroll-behavior:smooth}
  .hero-stage-scene .h-rules,.hero-stage-letters .h-letters,.hero-stage-button .journey-invite,
  .hero-stage-scene .h-qmark{animation:none}
 }
+
+/* Keep the first portrait below the fixed navigation, including short desktop
+   windows where the former 120svh / negative-top rule cut through its face. */
+@media(min-width:700px){
+ .station[data-station="0"] .station-art{top:110px;left:13vw;height:calc(100svh - 110px);width:calc((100svh - 110px) * .6666667);max-width:49vw}
+ .station[data-station="0"] .station-art img{object-fit:contain;object-position:center}
+}
