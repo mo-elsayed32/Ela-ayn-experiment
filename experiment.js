@@ -45,7 +45,8 @@
   // No inverse Y transform is raced against native compositor scrolling.
   const entry=reduced?1:smooth((hp-.18)/.82);
   const stage=journey.querySelector('.station-stage');
-  const approach=!reduced&&scrollY<m.top;
+  // Scroll offsets may round just below a fractional gallery boundary.
+  const approach=!reduced&&scrollY<m.top-1;
   stage.classList.toggle('is-approaching',approach);
   stage.style.transform='none';
   journey.style.setProperty('--gallery-entry',entry);
