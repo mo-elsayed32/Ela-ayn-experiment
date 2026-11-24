@@ -114,3 +114,17 @@ html {scroll-behavior:smooth}
 
 /* Share the exit viewport rather than inserting an empty viewport between scenes. */
 @media(prefers-reduced-motion:no-preference){.station-journey:not(.is-static){margin-top:-100svh;z-index:2;opacity:var(--gallery-entry,0)}.h-title{filter:none}}
+
+/* Experimental entrance: title, then one room opening around it. */
+.hero-stage-project .h-divider{animation:entrance-caption .85s cubic-bezier(.22,1,.36,1) both}
+.hero-stage-author .h-eyebrow{animation:entrance-caption 1s .14s cubic-bezier(.22,1,.36,1) both}
+.hero-stage-scene #nav{animation:entrance-air 1.15s .18s both}
+.hero-stage-scene .h-bg,.hero-stage-scene .h-rules{animation:entrance-air 1.65s both}
+.hero-stage-scene .h-qmark{animation:entrance-question 2s cubic-bezier(.22,1,.36,1) both}
+.hero-stage-words #h-snap-sub{animation:entrance-caption 1s both}
+.hero-stage-letters .h-letters{animation:entrance-air 1.2s both}
+.hero-button-edge{position:absolute;z-index:8;pointer-events:none;overflow:hidden;border-radius:999px;filter:drop-shadow(0 0 2px rgba(255,202,105,.55))}
+@keyframes entrance-caption{from{opacity:0;translate:0 7px}to{opacity:1;translate:0 0}}
+@keyframes entrance-air{from{opacity:0}to{opacity:1}}
+@keyframes entrance-question{from{opacity:0;translate:-20px 12px}to{opacity:.12;translate:0 0}}
+@media(prefers-reduced-motion:reduce){.hero-stage-project .h-divider,.hero-stage-author .h-eyebrow,.hero-stage-scene #nav,.hero-stage-scene .h-bg,.hero-stage-scene .h-rules,.hero-stage-scene .h-qmark,.hero-stage-words #h-snap-sub,.hero-stage-letters .h-letters{animation:none}}
