@@ -56,17 +56,44 @@ document.addEventListener('mouseenter', () => {
 /* ── floating letters ── */
 const lbox = document.getElementById('h-ltrs');
 
-function spawnLetter() {
-  if (!lbox) return;
-  const el = document.createElement('span');
-  el.className = 'ltr';
-  el.textContent = lchars[Math.floor(Math.random()*lchars.length)];
-  const s = Math.random()*55+18;
-  el.style.cssText = `right:${Math.random()*100}%;bottom:-${s}px;font-size:${s}px;animation-duration:${Math.random()*14+12}s;animation-delay:${Math.random()*3}s;`;
-  lbox.appendChild(el);
-  setTimeout(() => el.remove(), 19000);
+// Rasterize one decorative glyph before breaking it into dust. No reflowing
+// letter spans, and no fixed lifetime that cuts off a still-visible animation.
+function dustFloatingLetter(el) {
+  if (!el.isConnected) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.remove(); return; }
+  const r=el.getBoundingClientRect(), box=lbox.getBoundingClientRect(), cs=getComputedStyle(el);
+  if (!r.width || !r.height || +cs.opacity<.005 || r.bottom<box.top || r.top>box.bottom) { el.remove(); return; }
+  const source=document.createElement('canvas'), scale=2;
+  source.width=Math.ceil(r.width*scale);source.height=Math.ceil(r.height*scale);
+  const sx=source.getContext('2d');sx.scale(scale,scale);sx.font=cs.font;sx.fillStyle=cs.color;
+  sx.textAlign='center';sx.textBaseline='middle';const matrix=new DOMMatrix(cs.transform);sx.translate(r.width/2,r.height/2);sx.rotate(Math.atan2(matrix.b,matrix.a));sx.fillText(el.textContent,0,0);
+  const pixels=sx.getImageData(0,0,source.width,source.height).data, dust=[];
+  for(let y=0;y<source.height;y+=3)for(let x=0;x<source.width;x+=3){
+    const a=pixels[(y*source.width+x)*4+3];if(a<25)continue;
+    dust.push({x:x/scale,y:y/scale,a:a/255,dx:8+Math.random()*36,dy:-12-Math.random()*48,delay:(x/source.width)*.35+Math.random()*.12});
+  }
+  const canvas=document.createElement('canvas');canvas.className='floating-dust';
+  canvas.width=Math.ceil((r.width+100)*scale);canvas.height=Math.ceil((r.height+130)*scale);
+  canvas.style.cssText=`position:absolute;left:${r.left-box.left-40}px;top:${r.top-box.top-90}px;width:${r.width+100}px;height:${r.height+130}px;pointer-events:none;`;
+  lbox.appendChild(canvas);const ctx=canvas.getContext('2d');ctx.scale(scale,scale);
+  const opacity=+cs.opacity,start=performance.now();el.remove();
+  function frame(now){
+    const t=(now-start)/1000;ctx.clearRect(0,0,canvas.width/scale,canvas.height/scale);ctx.fillStyle=cs.color;
+    for(const q of dust){const v=Math.max(0,Math.min(1,(t-q.delay)/.85));ctx.globalAlpha=q.a*opacity*(1-v);ctx.fillRect(q.x+40+q.dx*v,q.y+90+q.dy*v,1.5*(1-v*.6),1.5*(1-v*.6));}
+    if(t<1.35 && canvas.isConnected)requestAnimationFrame(frame);else canvas.remove();
+  }
+  requestAnimationFrame(frame);
 }
-setInterval(spawnLetter, 1800);
+function spawnLetter() {
+  if (!lbox || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el=document.createElement('span');el.className='ltr';
+  el.textContent=lchars[Math.floor(Math.random()*lchars.length)];
+  const size=Math.random()*55+18,duration=Math.random()*14+12,delay=Math.random()*3;
+  el.style.cssText=`right:${Math.random()*100}%;bottom:-${size}px;font-size:${size}px;animation-duration:${duration}s;animation-delay:${delay}s;animation-iteration-count:1;`;
+  lbox.appendChild(el);
+  setTimeout(()=>dustFloatingLetter(el),(delay+duration*.64)*1000);
+}
+setInterval(spawnLetter,1800);
 
 /* ── progress bar ── */
 const progBar = document.getElementById('prog');
@@ -1431,82 +1458,39 @@ document.addEventListener('keydown', function(e) {
    + canvas sparkles per char
 ───────────────────────────────────────── */
 function tgDissolveText(el, onDone) {
-  var text = el.textContent.trim();
-  if (!text) { if (onDone) onDone(); return; }
-
-  /* measure each character */
-  el.innerHTML = '';
-  var chars = Array.from(text);
-  var spans = chars.map(function(ch) {
-    var s = document.createElement('span');
-    s.textContent = ch;
-    s.style.cssText = 'display:inline-block;white-space:pre;';
-    el.appendChild(s);
-    return s;
-  });
-  var rects = spans.map(function(s) { return s.getBoundingClientRect(); });
-
-  /* clones — fixed, zIndex below modals */
-  var clones = spans.map(function(s, i) {
-    var r = rects[i];
-    var clone = document.createElement('span');
-    clone.textContent = s.textContent;
-    clone.style.cssText = [
-      'position:fixed',
-      'left:'   + r.left + 'px',
-      'top:'    + r.top  + 'px',
-      'font-family:Amiri,serif',
-      'font-style:italic',
-      'font-size:.78rem',
-      'letter-spacing:.18em',
-      'color:var(--text3)',
-      'pointer-events:none',
-      'z-index:1001',
-      'display:inline-block',
-      'white-space:pre',
-      'will-change:transform,opacity,filter',
-      'transition:none',
-    ].join(';');
-    document.body.appendChild(clone);
-    return clone;
-  });
-
-  el.style.opacity = '0';
-  el.innerHTML = '';
-
-  /* stagger RTL — index 0 (rightmost) first */
-  var STAGGER  = 42;   /* ms between chars */
-  var DURATION = 680;  /* ms per char animation */
-  var maxDelay = (chars.length - 1) * STAGGER;
-
-  clones.forEach(function(clone, i) {
-    var delay = i * STAGGER;
-
-    setTimeout(function() {
-      /* small random drift: gentle, not explosive */
-      var driftX = (Math.random() - 0.5) * 6;
-      var riseY  = -(14 + Math.random() * 10);
-
-      clone.style.transition = [
-        'transform '  + DURATION + 'ms cubic-bezier(.25,.46,.45,.94)',
-        'opacity '    + DURATION + 'ms cubic-bezier(.4,0,1,1)',
-        'filter '     + DURATION + 'ms ease',
-      ].join(',');
-
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          clone.style.transform = 'translate(' + driftX + 'px,' + riseY + 'px) scale(.88)';
-          clone.style.opacity   = '0';
-          clone.style.filter    = 'blur(2.5px)';
-        });
-      });
-
-      setTimeout(function() { clone.remove(); }, DURATION + 60);
-    }, delay);
-  });
-
-  var doneDt = maxDelay + DURATION * 0.45;
-  setTimeout(function() { if (onDone) onDone(); }, doneDt);
+  const text=el.textContent.trim();
+  if(!text){if(onDone)onDone();return;}
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    el.style.opacity='0';if(onDone)onDone();return;
+  }
+  // Shape the complete Arabic word in a single draw. Never replace the DOM
+  // word with character spans, which changes contextual forms and ligatures.
+  const r=el.getBoundingClientRect(),cs=getComputedStyle(el),scale=2,pad=8;
+  const source=document.createElement('canvas');
+  source.width=Math.ceil((r.width+pad*2)*scale);source.height=Math.ceil((r.height+pad*2)*scale);
+  const sx=source.getContext('2d');sx.scale(scale,scale);sx.font=cs.font;
+  sx.fillStyle=cs.color;sx.textAlign='center';sx.textBaseline='middle';sx.direction='rtl';
+  if('letterSpacing' in sx)sx.letterSpacing=cs.letterSpacing;
+  sx.fillText(text,r.width/2+pad,r.height/2+pad);
+  const pixels=sx.getImageData(0,0,source.width,source.height).data,dust=[];
+  for(let y=0;y<source.height;y+=2)for(let x=0;x<source.width;x+=2){
+    const a=pixels[(y*source.width+x)*4+3];if(a<20)continue;
+    dust.push({x:x/scale,y:y/scale,a:a/255,delay:(1-x/source.width)*.32+Math.random()*.08,dx:(Math.random()-.35)*32,dy:-15-Math.random()*30});
+  }
+  const canvas=document.createElement('canvas');canvas.className='word-snap-dust';canvas.setAttribute('aria-hidden','true');
+  canvas.width=Math.ceil((r.width+100)*scale);canvas.height=Math.ceil((r.height+130)*scale);
+  canvas.style.cssText=`position:fixed;left:${r.left-50}px;top:${r.top-90}px;width:${r.width+100}px;height:${r.height+130}px;pointer-events:none;z-index:1001;`;
+  document.body.appendChild(canvas);const ctx=canvas.getContext('2d');ctx.scale(scale,scale);
+  const start=performance.now();let done=false;
+  function finish(){if(done)return;done=true;canvas.remove();if(onDone)onDone();}
+  function frame(now){
+    if(!canvas.isConnected){finish();return;}
+    const t=(now-start)/1000,lift=Math.min(1,t/.9)*18;
+    ctx.clearRect(0,0,canvas.width/scale,canvas.height/scale);ctx.fillStyle=cs.color;
+    for(const q of dust){const v=Math.max(0,Math.min(1,(t-.15-q.delay)/.7));ctx.globalAlpha=q.a*(1-v);ctx.fillRect(q.x+50-pad+q.dx*v,q.y+90-pad-lift+q.dy*v,1,1);}
+    if(t<1.25)requestAnimationFrame(frame);else finish();
+  }
+  frame(start);el.style.opacity='0';
 }
 
 

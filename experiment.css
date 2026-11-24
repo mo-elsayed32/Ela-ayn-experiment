@@ -4,10 +4,10 @@ html {scroll-behavior:smooth}
 .question-journey .hero{position:sticky;top:0;height:100svh;min-height:100svh;isolation:isolate}
 .h-content{mix-blend-mode:normal}
 #hero-gold-treatment{mask:url(#hero-black-remove)}
-.h-qmark{position:absolute;opacity:.12!important;scale:var(--question-scale,1);transform-origin:40% 45%;transition:none}
+.h-qmark{position:absolute;opacity:.12;scale:var(--question-scale,1);transform-origin:40% 45%;transition:none}
 .h-title{transform:scale(var(--question-title-scale,1));transform-origin:55% 50%;opacity:var(--question-title-opacity,1)!important;will-change:transform,opacity}
 .h-content{filter:blur(var(--question-blur,0px))}
-.question-journey .h-discover,.question-journey .h-snap-sub,.question-journey .h-eyebrow,.question-journey .h-divider{opacity:var(--question-detail-opacity,1)!important}
+.question-journey .h-discover,.question-journey .h-snap-sub,.question-journey .h-eyebrow,.question-journey .h-divider{opacity:var(--question-detail-opacity,1)}
 .journey-invite{position:absolute;left:50%;bottom:35px;transform:translateX(-50%);display:flex;align-items:center;flex-direction:column;gap:12px;color:var(--text2);font-size:11px;letter-spacing:.12em;z-index:5;opacity:var(--question-detail-opacity,1)}
 .journey-invite i{height:36px;width:1px;background:linear-gradient(var(--gold),transparent)}
 .hero-sequence-pending .journey-invite,.hero-choreography .journey-invite{visibility:hidden}
@@ -242,4 +242,28 @@ html {scroll-behavior:smooth}
 }
 @media(prefers-reduced-motion:no-preference) and (max-width:1099px) and (orientation:portrait){
  .station-journey:not(.is-static) .station-world{top:min(calc((100lvh - 100svh)/2),max(0px,calc(15svh - var(--station-control-bottom,24px) - 60px)))}
+}
+
+/* Subtitle belongs to its CTA, not an independent fixed viewport position. */
+.question-journey .h-discover{display:flex;flex-direction:column;align-items:center}
+.question-journey .h-snap-sub{position:absolute;top:100%;bottom:auto;left:0;right:0;justify-content:center;margin-top:12px}
+
+/* Supporting hero details share one opacity fade after the title resolves.
+   No !important opacity may bypass this entrance or its scroll-opacity end. */
+.hero-stage-project .h-divider,.hero-stage-author .h-eyebrow,
+.hero-stage-words #h-snap-sub,.hero-stage-button #h-discover{
+ visibility:visible;animation:hero-follow-detail 1.3s ease both;
+}
+.hero-stage-scene #nav,.hero-stage-scene .h-bg,.hero-stage-scene .h-rules,
+.hero-stage-letters .h-letters,.hero-stage-button .journey-invite{
+ visibility:visible;animation:entrance-air 1.3s ease both;
+}
+.hero-stage-scene .h-qmark{animation:hero-follow-question 1.3s ease both}
+@keyframes hero-follow-detail{from{opacity:0}to{opacity:var(--question-detail-opacity,1)}}
+@keyframes hero-follow-question{from{opacity:0}to{opacity:.12}}
+@media(prefers-reduced-motion:reduce){
+ .hero-stage-project .h-divider,.hero-stage-author .h-eyebrow,.hero-stage-words #h-snap-sub,
+ .hero-stage-button #h-discover,.hero-stage-scene #nav,.hero-stage-scene .h-bg,
+ .hero-stage-scene .h-rules,.hero-stage-letters .h-letters,.hero-stage-button .journey-invite,
+ .hero-stage-scene .h-qmark{animation:none}
 }

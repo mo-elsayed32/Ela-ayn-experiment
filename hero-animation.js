@@ -41,25 +41,20 @@ async function playHeroEntrance(){
    if(t<3.5)requestAnimationFrame(frame);else {showHeroImage();resolve()}
   }requestAnimationFrame(frame);
  });
- // One resolving phrase after the gold title, rather than six isolated waits.
+ // The title finishes first. All supporting elements then fade together,
+ // completing within1.5s rather than a chain of delayed visibility changes.
  if(heroEntranceCanceled)return;
+ heroRoot.classList.add('hero-choreography','hero-stage-project','hero-stage-author','hero-stage-scene','hero-stage-words','hero-stage-letters','hero-stage-button');
  heroRoot.classList.remove('hero-sequence-pending');
- heroRoot.classList.add('hero-choreography','hero-stage-project','hero-stage-author','hero-stage-scene');
  document.querySelector('.h-divider').style.opacity='1';
  document.querySelector('.h-eyebrow').style.opacity='1';
  document.querySelectorAll('.n-logo,.n-links a').forEach(el=>el.style.opacity='1');
  document.getElementById('h-qmark').style.opacity='.12';
- await heroDelay(reduce?0:520);if(heroEntranceCanceled)return;
- heroRoot.classList.add('hero-stage-words');
  document.getElementById('h-snap-sub').style.opacity='1';startSnapCycle();
- await heroDelay(reduce?0:360);if(heroEntranceCanceled)return;
- heroRoot.classList.add('hero-stage-letters');
- await heroDelay(reduce?0:740);if(heroEntranceCanceled)return;
  document.querySelector('.glass-disc-label').textContent='اكتشف نصًّا';
  document.getElementById('glass-disc-btn').style.opacity='1';
  document.getElementById('h-discover').style.opacity='1';
- heroRoot.classList.add('hero-stage-button');
- if(!reduce)await revealHeroButton();
+ if(!reduce)await Promise.all([revealHeroButton(),heroDelay(1500)]);
  if(heroEntranceCanceled)return;
  clearTimeout(window.heroSafetyTimer);heroRoot.classList.remove('hero-choreography');
 }
