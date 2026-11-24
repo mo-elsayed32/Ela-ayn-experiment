@@ -183,3 +183,28 @@ html {scroll-behavior:smooth}
  .station-journey:not(.is-static) .station[data-station="2"] .station-art{width:calc(100dvh - 104px);left:calc(25vw - (100dvh - 104px)*.5)}
  .station-journey:not(.is-static) .station-art img{object-fit:contain;object-position:center;mask-image:radial-gradient(ellipse closest-side,#000 76%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 76%,transparent 100%)}
 }
+
+/* Sideways reading mode keeps art and text together instead of a tall empty stack. */
+@media(max-width:1099px) and (max-height:500px) and (orientation:landscape){
+ .is-static .station-world .station{height:100svh;min-height:340px}
+ .is-static .station-world .station .station-art{left:calc(23vw - (max(100svh,340px) - 104px)*.3333);top:88px;width:auto;aspect-ratio:2/3;height:calc(100% - 104px)}
+ .is-static .station-world .station .station-art img{object-fit:contain;object-position:center;mask-image:radial-gradient(ellipse closest-side,#000 76%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 76%,transparent 100%)}
+ .is-static .station-world .station .station-copy{right:8vw;top:56%;bottom:auto;transform:translateY(-50%);width:44vw}
+ .is-static .station-copy h2{font-size:28px;line-height:1.5;margin-bottom:8px}
+ .is-static .station-copy p{font-size:10.5px;line-height:1.8}
+ .is-static .station-num{margin-bottom:7px}
+ .is-static .station-read{margin-top:5px;padding-top:6px}
+}
+@media(max-width:1099px) and (max-height:500px) and (orientation:landscape) and (prefers-reduced-motion:reduce){
+ .station-world .station{height:100svh;min-height:340px}
+ .station-world .station .station-art{left:calc(23vw - (max(100svh,340px) - 104px)*.3333);top:88px;width:auto;aspect-ratio:2/3;height:calc(100% - 104px)}
+ .station-world .station .station-art img{object-fit:contain;object-position:center;mask-image:radial-gradient(ellipse closest-side,#000 76%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 76%,transparent 100%)}
+ .station-world .station .station-copy{right:8vw;top:56%;bottom:auto;transform:translateY(-50%);width:44vw}
+ .station-copy h2{font-size:28px;line-height:1.5;margin-bottom:8px}
+ .station-copy p{font-size:10.5px;line-height:1.8}
+ .station-num{margin-bottom:7px}
+ .station-read{margin-top:5px;padding-top:6px}
+}
+
+@media(max-width:1099px) and (max-height:500px) and (orientation:landscape){.is-static .station-world .station[data-station="2"] .station-art{aspect-ratio:1;left:calc(23vw - (max(100svh,340px) - 104px)*.5)}}
+@media(max-width:1099px) and (max-height:500px) and (orientation:landscape) and (prefers-reduced-motion:reduce){.station-world .station[data-station="2"] .station-art{aspect-ratio:1;left:calc(23vw - (max(100svh,340px) - 104px)*.5)}}
