@@ -154,3 +154,27 @@ html {scroll-behavior:smooth}
 
 /* The hero surface also fills the retracted-toolbar viewport. */
 .question-journey .hero{height:100dvh;min-height:100dvh}
+
+/* Keep the full hero stack usable when a phone is held sideways. */
+@media(max-width:1099px) and (max-height:500px) and (orientation:landscape){
+ .question-journey .h-content{padding-top:58px}
+ .question-journey .h-title{width:min(300px,52dvh)}
+ .question-journey .h-eyebrow{margin-bottom:8px}
+ .question-journey .h-divider{margin:8px 0}
+ .question-journey .h-discover{margin-top:10px!important;justify-content:center}
+ .question-journey .h-snap-sub{margin-top:4px;justify-content:center}
+ .journey-invite{display:none}
+}
+@media(max-width:1099px) and (max-height:500px) and (orientation:landscape) and (prefers-reduced-motion:no-preference){
+ .station-journey:not(.is-static) .station-heading{top:96px;left:24px;right:auto}
+ .station-journey:not(.is-static) .station-heading span{display:none}
+ .station-journey:not(.is-static) .station-copy{top:55%;bottom:auto;transform:translateY(-50%);right:8vw;width:44vw}
+ .station-journey:not(.is-static) .station-copy h2{font-size:28px}
+ .station-journey:not(.is-static) .station-copy p{font-size:10.5px;line-height:1.8}
+ .station-journey:not(.is-static) .station-num{margin-bottom:7px}
+ .station-journey:not(.is-static) .station-read{margin-top:5px;padding-top:6px}
+ .station-journey:not(.is-static) .station-art{width:60vw;height:120svh;left:0;top:-10svh}
+ .station-journey:not(.is-static) .station-controls{bottom:5px}
+}
+
+@media(max-width:600px) and (max-height:500px) and (orientation:landscape) and (prefers-reduced-motion:no-preference){.station-journey:not(.is-static) .station-heading{top:78px}}
