@@ -156,6 +156,9 @@ function goTo(page, options = {}) {
   }
 
   const current = document.querySelector('.page.active');
+  // تذكّر عنصر التركيز الحالي قبل الخروج: لو كان جوّه صفحة هتتخفّى،
+  // التركيز ونقطة بداية الـ Tab هيبقوا مدفونين معاها بعد التنقّل.
+  const prevFocus = document.activeElement;
   // Returning during the outgoing transition must cancel its pending activation.
   const canceledNavigation = navigationTimer !== null;
   if (canceledNavigation) {
@@ -226,6 +229,13 @@ function goTo(page, options = {}) {
     }));
     setNav(page);
     setPageTitle(page);
+    // لو التركيز كان جوّه الصفحة اللي خرجنا منها، انقله لحاوية الصفحة الجديدة
+    // (tabindex=-1 موجود) عشان أول Tab بعد التنقّل يبدأ من قمتها بدل ما يضيع
+    // في عنصر مخفي. التركيز البرمجي مش بيبيّن إطار focus-visible، فمفيش
+    // أثر بصري على مستخدمي الماوس. التحميل الأول (focus على body) مش بيتأثر.
+    if (prevFocus && prevFocus !== document.body && prevFocus.closest('.page')) {
+      target.focus({ preventScroll: true });
+    }
     if(page==='home' && snapCycleStarted)startSnapCycle();
     if (progBar) progBar.style.width = '0';
     setTimeout(() => {
