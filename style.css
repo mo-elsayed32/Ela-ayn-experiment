@@ -1905,6 +1905,8 @@ button.env-pocket-item {
 }
 @media (prefers-reduced-motion: reduce) {
   #flash-card { transition-duration: .01ms; }
+  /* قراءة النص لا تنتظر حركة: المقاطع والتوقيع ظاهرة فورًا لمن يفضّل تقليل الحركة */
+  .stanza, .poem-sig { opacity:1 !important; transform:none !important; transition:none !important; }
 }
 
 /* Approved hero lettering and staged entrance. No section-scroll changes. */
