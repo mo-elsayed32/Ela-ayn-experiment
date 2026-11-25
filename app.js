@@ -251,6 +251,22 @@ function goToSection(page, id) {
   }, 680);
 }
 
+/* رابط «تجاوز إلى المحتوى»: جوّه صفحات النصوص هدف #about كان بيغيّر الـ hash
+   فيفعّل popstate ويرجّع المستخدم للرئيسية بدل محتوى النص. هنا بنوقف تغيير
+   الـ hash وننقل التركيز والتمرير لجسم النص المفتوح. في الرئيسية يفضل سلوك
+   الرابط الأصلي (#about) كما هو. */
+document.querySelector('.skip-link').addEventListener('click', (e) => {
+  const active = document.querySelector('.page.active');
+  if (!active || active.id === 'page-home') return;
+  const target = active.querySelector('.poem-body');
+  if (!target) return;
+  e.preventDefault();
+  target.setAttribute('tabindex', '-1');
+  target.focus({ preventScroll: true });
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'start' });
+});
+
 /* ── nav ── */
 
 
