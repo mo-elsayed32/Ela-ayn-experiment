@@ -785,6 +785,8 @@ body.cursor-fallback #cur-r     { display: none !important; }
 /* القراءة المتصلة: كل المقاطع ظاهرة فورًا بلا انتظار كشف التمرير */
 .page.continuous-reading .stanza,
 .page.continuous-reading .poem-sig { opacity:1 !important; transform:none !important; transition:none !important; }
+/* زر نمط القراءة في الثيم الفاتح: ألوانه الأصلية صُممت لخلفية المعرض الداكنة */
+[data-theme="light"] .poem-reading-toggle { background:rgba(120,80,20,.07); color:var(--text2); border-color:rgba(122,85,16,.35); }
 
 /* فاصل بين المقاطع */
 .p-break { display:flex; align-items:center; gap:1.5rem; margin:2.8rem 0 3.2rem; opacity:.28; }
