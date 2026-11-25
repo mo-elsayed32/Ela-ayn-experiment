@@ -287,6 +287,17 @@ document.querySelector('.skip-link').addEventListener('click', (e) => {
   target.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'start' });
 });
 
+/* تبديل القراءة المتصلة داخل صفحات النصوص: يُظهر كل المقاطع فورًا ويوقف
+   انتظار كشف التمرير. إعادة الزر ترجع الإيقاع التأملي الحالي. */
+document.querySelectorAll('.poem-reading-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.closest('.page');
+    const on = page.classList.toggle('continuous-reading');
+    btn.setAttribute('aria-pressed', String(on));
+    btn.textContent = on ? 'قراءة تأملية' : 'قراءة متصلة';
+  });
+});
+
 /* ── nav ── */
 
 
