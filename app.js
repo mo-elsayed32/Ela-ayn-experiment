@@ -132,6 +132,14 @@ function pageFromHash() {
   return VALID_PAGES.has(candidate) ? candidate : 'home';
 }
 
+/* عنوان التبويب يتبع الصفحة: اسم النص في صفحات النصوص، وعنوان المشروع في الرئيسية. */
+function setPageTitle(page) {
+  if (page === 'home') { document.title = 'إلى أين؟'; return; }
+  const t = document.querySelector('#page-' + page + ' .pc-title');
+  const name = t ? (t.innerText || t.textContent).replace(/\s+/g, ' ').trim() : '';
+  document.title = name ? name + ' | إلى أين؟' : 'إلى أين؟';
+}
+
 function goTo(page, options = {}) {
   if (page !== 'home' && typeof finishHeroEntrance === 'function') finishHeroEntrance();
   if (!VALID_PAGES.has(page)) return;
@@ -162,6 +170,7 @@ function goTo(page, options = {}) {
       current.style.opacity = '1';
     }
     setNav(page);
+    setPageTitle(page);
     if(page==='home' && snapCycleStarted)startSnapCycle();
     if (Number.isFinite(restoreScrollY)) window.scrollTo({ top: restoreScrollY, behavior: 'instant' });
     return;
@@ -216,6 +225,7 @@ function goTo(page, options = {}) {
       window.scrollTo({ top: destinationY, behavior: 'instant' });
     }));
     setNav(page);
+    setPageTitle(page);
     if(page==='home' && snapCycleStarted)startSnapCycle();
     if (progBar) progBar.style.width = '0';
     setTimeout(() => {
